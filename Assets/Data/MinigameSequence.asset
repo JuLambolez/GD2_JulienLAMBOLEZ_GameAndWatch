@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30652378d3af1be49b5c1e4446149e25, type: 3}
+  m_Name: MinigameSequence
+  m_EditorClassIdentifier: Assembly-CSharp::MinigameSequence
+  Minigames:
+  - {fileID: 11400000, guid: d33c43ef62b3d1f438726affeba2cd5f, type: 2}
+  - {fileID: 11400000, guid: fbb6f0b66b336114d9085e0eb447d8e1, type: 2}
