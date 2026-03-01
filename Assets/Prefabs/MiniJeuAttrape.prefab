@@ -478,10 +478,11 @@ MonoBehaviour:
   personnage: {fileID: 1732656924233191506}
   objetQuiTombe: {fileID: 737880727955233829}
   zoneDeJeu: {fileID: 7325393192734564853}
-  nombreEmplacements: 5
-  vitesseChute: 200
+  nombreEmplacementsH: 5
+  nombreEmplacementsV: 4
   margeHorizontale: 80
-  hauteurPersonnage: 100
+  margeVerticale: 100
+  intervalleChute: 0.8
 --- !u!1 &8283078150527687473
 GameObject:
   m_ObjectHideFlags: 0
