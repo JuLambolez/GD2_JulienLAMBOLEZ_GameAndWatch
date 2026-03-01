@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -9,13 +10,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private MinigameSequence minigameSequence;
     [SerializeField] private Transform minigameContainer;
     [SerializeField] private int startingLives = 3;
+    // Durée du temps de battement avant le premier mini-jeu et entre chaque mini-jeu
+    [SerializeField] private float delaiEntreMinijeux = 5f;
 
     private int _score;
     private int _lives;
     private int _currentIndex;
     private MinigameBase _currentMinigame;
 
-    // Événements consommés par le HUD
     public event Action<int> OnScoreChanged;
     public event Action<int> OnLivesChanged;
 
@@ -37,15 +39,26 @@ public class GameManager : MonoBehaviour
         _score = 0;
         _currentIndex = 0;
 
+        // Temps de battement initial avant le premier mini-jeu
+        StartCoroutine(RoutineEntreMinijeux());
+    }
+
+    /// Détruit le mini-jeu actif, attend le délai, puis charge le suivant.
+    private IEnumerator RoutineEntreMinijeux()
+    {
+        if (_currentMinigame != null)
+        {
+            Destroy(_currentMinigame.gameObject);
+            _currentMinigame = null;
+        }
+
+        yield return new WaitForSeconds(delaiEntreMinijeux);
+
         LoadCurrentMinigame();
     }
 
-    /// Instancie le prefab du mini-jeu courant et le démarre.
     private void LoadCurrentMinigame()
     {
-        if (_currentMinigame != null)
-            Destroy(_currentMinigame.gameObject);
-
         if (_currentIndex >= minigameSequence.Minigames.Count)
         {
             Victory();
@@ -57,7 +70,6 @@ public class GameManager : MonoBehaviour
         GameObject instance = Instantiate(definition.Prefab, minigameContainer);
         _currentMinigame = instance.GetComponent<MinigameBase>();
 
-        // Vérification que le prefab contient bien un MinigameBase
         if (_currentMinigame == null)
         {
             Debug.LogError($"[GameManager] Le prefab '{definition.Prefab.name}' n'a pas de composant MinigameBase !");
@@ -74,7 +86,7 @@ public class GameManager : MonoBehaviour
         _score++;
         OnScoreChanged?.Invoke(_score);
         _currentIndex++;
-        LoadCurrentMinigame();
+        StartCoroutine(RoutineEntreMinijeux());
     }
 
     private void HandleLose()
@@ -89,7 +101,7 @@ public class GameManager : MonoBehaviour
         }
 
         _currentIndex++;
-        LoadCurrentMinigame();
+        StartCoroutine(RoutineEntreMinijeux());
     }
 
     private void Victory()

@@ -1,24 +1,27 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class MinijeuAttrape : MinigameBase
 {
-    [Header("Références UI")]
+    [Header("RÃ©fÃ©rences UI")]
     [SerializeField] private RectTransform personnage;
     [SerializeField] private RectTransform objetQuiTombe;
     [SerializeField] private RectTransform zoneDeJeu;
 
-    [Header("Paramètres")]
-    [SerializeField] private int nombreEmplacements = 5;
-    [SerializeField] private float vitesseChute = 250f;
-    // Marge depuis les bords gauche et droit de la zone de jeu
+    [Header("ParamÃ¨tres")]
+    [SerializeField] private int nombreEmplacementsH = 5;
+    [SerializeField] private int nombreEmplacementsV = 4;
     [SerializeField] private float margeHorizontale = 80f;
-    // Hauteur du personnage depuis le bas de la zone de jeu
-    [SerializeField] private float hauteurPersonnage = 100f;
+    [SerializeField] private float margeVerticale = 100f;
+    // Temps en secondes entre chaque dÃ©placement vertical de l'objet
+    [SerializeField] private float intervalleChute = 0.8f;
 
     private float[] _positionsX;
-    private int _slotActuel;
-    private float _posYPersonnage;
+    private float[] _positionsY;
+    private int _slotH;
+    private int _slotVObjet;
+    private int _slotHObjet;
+    private float _tempsDernierDeplacement;
     private bool _resolved;
 
     protected override void Demarrer()
@@ -29,23 +32,28 @@ public class MinijeuAttrape : MinigameBase
         float demiLargeur = zoneDeJeu.rect.width * 0.5f;
         float demiHauteur = zoneDeJeu.rect.height * 0.5f;
 
-        // Calcul des positions X de chaque emplacement
-        _positionsX = new float[nombreEmplacements];
+        // Calcul des emplacements horizontaux
+        _positionsX = new float[nombreEmplacementsH];
         float largeurUtile = (demiLargeur - margeHorizontale) * 2f;
+        for (int i = 0; i < nombreEmplacementsH; i++)
+            _positionsX[i] = -demiLargeur + margeHorizontale + (largeurUtile / (nombreEmplacementsH - 1)) * i;
 
-        for (int i = 0; i < nombreEmplacements; i++)
-        {
-            _positionsX[i] = -demiLargeur + margeHorizontale + (largeurUtile / (nombreEmplacements - 1)) * i;
-        }
+        // Calcul des emplacements verticaux (haut â†’ bas)
+        _positionsY = new float[nombreEmplacementsV];
+        float hauteurUtile = (demiHauteur - margeVerticale) * 2f;
+        for (int i = 0; i < nombreEmplacementsV; i++)
+            _positionsY[i] = demiHauteur - margeVerticale - (hauteurUtile / (nombreEmplacementsV - 1)) * i;
 
-        // Personnage au centre au départ
-        _slotActuel = nombreEmplacements / 2;
-        _posYPersonnage = -demiHauteur + hauteurPersonnage;
-        personnage.anchoredPosition = new Vector2(_positionsX[_slotActuel], _posYPersonnage);
+        // Personnage au centre en bas (dernier emplacement vertical)
+        _slotH = nombreEmplacementsH / 2;
+        personnage.anchoredPosition = new Vector2(_positionsX[_slotH], _positionsY[nombreEmplacementsV - 1]);
 
-        // Objet sur un emplacement aléatoire en haut
-        int slotDepart = Random.Range(0, nombreEmplacements);
-        objetQuiTombe.anchoredPosition = new Vector2(_positionsX[slotDepart], demiHauteur - 50f);
+        // Objet sur un emplacement horizontal alÃ©atoire en haut
+        _slotHObjet = Random.Range(0, nombreEmplacementsH);
+        _slotVObjet = 0;
+        objetQuiTombe.anchoredPosition = new Vector2(_positionsX[_slotHObjet], _positionsY[_slotVObjet]);
+
+        _tempsDernierDeplacement = Time.time;
     }
 
     protected override void SurMiseAJourJeu()
@@ -58,18 +66,15 @@ public class MinijeuAttrape : MinigameBase
     {
         int direction = 0;
 
-        // Tap gauche ou droite sur mobile (wasPressedThisFrame = une seule détection par tap)
         if (Touchscreen.current != null)
         {
             foreach (var touch in Touchscreen.current.touches)
             {
                 if (!touch.press.wasPressedThisFrame) continue;
-
                 direction = touch.position.ReadValue().x < Screen.width * 0.5f ? -1 : 1;
             }
         }
 
-        // Flèches ou QD dans l'éditeur
 #if UNITY_EDITOR
         if (Keyboard.current != null)
         {
@@ -82,32 +87,33 @@ public class MinijeuAttrape : MinigameBase
 
         if (direction == 0) return;
 
-        // Déplacement d'un emplacement, bloqué aux bords
-        _slotActuel = Mathf.Clamp(_slotActuel + direction, 0, nombreEmplacements - 1);
-        personnage.anchoredPosition = new Vector2(_positionsX[_slotActuel], _posYPersonnage);
+        _slotH = Mathf.Clamp(_slotH + direction, 0, nombreEmplacementsH - 1);
+        personnage.anchoredPosition = new Vector2(_positionsX[_slotH], _positionsY[nombreEmplacementsV - 1]);
     }
 
     private void FaireChuter()
     {
         if (_resolved) return;
+        if (Time.time - _tempsDernierDeplacement < intervalleChute) return;
 
-        float nouveauY = objetQuiTombe.anchoredPosition.y - vitesseChute * Time.deltaTime;
-        objetQuiTombe.anchoredPosition = new Vector2(objetQuiTombe.anchoredPosition.x, nouveauY);
+        _tempsDernierDeplacement = Time.time;
+        _slotVObjet++;
 
-        // L'objet a atteint le niveau du personnage
-        if (nouveauY <= _posYPersonnage)
+        // L'objet a atteint le dernier emplacement vertical (niveau du personnage)
+        if (_slotVObjet >= nombreEmplacementsV - 1)
         {
             _resolved = true;
+            objetQuiTombe.anchoredPosition = new Vector2(_positionsX[_slotHObjet], _positionsY[nombreEmplacementsV - 1]);
             VerifierAttrape();
+            return;
         }
+
+        objetQuiTombe.anchoredPosition = new Vector2(_positionsX[_slotHObjet], _positionsY[_slotVObjet]);
     }
 
     private void VerifierAttrape()
     {
-        // Comme l'objet est forcément sur un emplacement, la distance peut être comparée directement aux slots
-        float distanceX = Mathf.Abs(objetQuiTombe.anchoredPosition.x - personnage.anchoredPosition.x);
-
-        if (distanceX <= margeHorizontale)
+        if (_slotHObjet == _slotH)
             Reussir();
         else
             Echouer();
