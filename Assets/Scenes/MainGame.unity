@@ -1677,6 +1677,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameOverController
   texteScore: {fileID: 515258916}
+  sonGameOver: {fileID: 8300000, guid: 570726b85b0684a4994314f59bb9a264, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

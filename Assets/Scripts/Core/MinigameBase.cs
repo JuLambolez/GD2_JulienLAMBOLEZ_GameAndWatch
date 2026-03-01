@@ -11,11 +11,14 @@ public abstract class MinigameBase : MonoBehaviour
     [SerializeField] private GameObject panneauInstruction;
     [SerializeField] private float dureeAffichageInstruction = 1.5f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip sonVictoire;
+    [SerializeField] private AudioClip sonDefaite;
+
     private float _dureeTotale;
     private float _tempsRestant;
     private bool _enCours;
 
-    // Accessible par les classes enfants pour adapter la difficulté
     protected int NiveauDifficulte { get; private set; }
 
     /// Appelé par le GameManager pour démarrer le mini-jeu.
@@ -63,17 +66,22 @@ public abstract class MinigameBase : MonoBehaviour
     protected virtual void SurMiseAJourJeu() { }
     protected virtual void SurMiseAJourTimer(float tempsRestant, float dureeTotale) { }
 
+    /// À appeler depuis le mini-jeu enfant quand le joueur réussit.
     protected void Reussir()
     {
         if (!_enCours) return;
         _enCours = false;
+        AudioManager.Instance.JouerSFX(sonVictoire);
         OnWin?.Invoke();
     }
 
+    /// À appeler depuis le mini-jeu enfant quand le joueur échoue,
+    /// ou déclenché automatiquement à l'expiration du timer.
     protected void Echouer()
     {
         if (!_enCours) return;
         _enCours = false;
+        AudioManager.Instance.JouerSFX(sonDefaite);
         OnLose?.Invoke();
     }
 }

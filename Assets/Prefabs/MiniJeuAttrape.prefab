@@ -475,6 +475,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MinijeuAttrape
   panneauInstruction: {fileID: 956878568960651191}
   dureeAffichageInstruction: 1.5
+  sonVictoire: {fileID: 8300000, guid: aef7874816d46604a99ecb74fa59dd66, type: 3}
+  sonDefaite: {fileID: 8300000, guid: 6ee3ea7c6de526743b6d48ed6c7cf70f, type: 3}
   personnage: {fileID: 1732656924233191506}
   objetQuiTombe: {fileID: 737880727955233829}
   zoneDeJeu: {fileID: 7325393192734564853}

@@ -4,7 +4,11 @@ using TMPro;
 
 public class GameOverController : MonoBehaviour
 {
+    [Header("UI")]
     [SerializeField] private TextMeshProUGUI texteScore;
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip sonGameOver;
 
     private const string NomSceneMenu = "MainMenu";
 
@@ -12,7 +16,8 @@ public class GameOverController : MonoBehaviour
     public void Afficher(int score)
     {
         gameObject.SetActive(true);
-        texteScore.text = $"Score Final : {score}";
+        texteScore.text = $"Score : {score}";
+        AudioManager.Instance.JouerSFX(sonGameOver);
     }
 
     /// Retourne au menu principal et détruit le GameManager persistant.
