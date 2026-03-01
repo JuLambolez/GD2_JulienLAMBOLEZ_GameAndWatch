@@ -18,7 +18,6 @@ public class GameManager : MonoBehaviour
     // Événements consommés par le HUD
     public event Action<int> OnScoreChanged;
     public event Action<int> OnLivesChanged;
-    public event Action<string> OnInstructionChanged;
 
     private void Awake()
     {
@@ -41,9 +40,7 @@ public class GameManager : MonoBehaviour
         LoadCurrentMinigame();
     }
 
-    /// <summary>
     /// Instancie le prefab du mini-jeu courant et le démarre.
-    /// </summary>
     private void LoadCurrentMinigame()
     {
         if (_currentMinigame != null)
@@ -56,8 +53,6 @@ public class GameManager : MonoBehaviour
         }
 
         MinigameDefinition definition = minigameSequence.Minigames[_currentIndex];
-
-        OnInstructionChanged?.Invoke(definition.Instruction);
 
         GameObject instance = Instantiate(definition.Prefab, minigameContainer);
         _currentMinigame = instance.GetComponent<MinigameBase>();
