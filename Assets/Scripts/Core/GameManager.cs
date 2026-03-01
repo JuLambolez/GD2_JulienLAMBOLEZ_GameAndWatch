@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections;
 using UnityEngine;
 
@@ -10,16 +10,22 @@ public class GameManager : MonoBehaviour
     [SerializeField] private MinigameSequence minigameSequence;
     [SerializeField] private Transform minigameContainer;
     [SerializeField] private int startingLives = 3;
-    // Durée du temps de battement avant le premier mini-jeu et entre chaque mini-jeu
     [SerializeField] private float delaiEntreMinijeux = 5f;
+
+    [Header("UI")]
+    [SerializeField] private GameOverController gameOverController;
+
+    private const int MaxNiveauDifficulte = 3;
 
     private int _score;
     private int _lives;
     private int _currentIndex;
+    private int _niveauDifficulte;
     private MinigameBase _currentMinigame;
 
     public event Action<int> OnScoreChanged;
     public event Action<int> OnLivesChanged;
+    public event Action<int> OnDifficulteChanged;
 
     private void Awake()
     {
@@ -38,12 +44,11 @@ public class GameManager : MonoBehaviour
         _lives = startingLives;
         _score = 0;
         _currentIndex = 0;
+        _niveauDifficulte = 0;
 
-        // Temps de battement initial avant le premier mini-jeu
         StartCoroutine(RoutineEntreMinijeux());
     }
 
-    /// Détruit le mini-jeu actif, attend le délai, puis charge le suivant.
     private IEnumerator RoutineEntreMinijeux()
     {
         if (_currentMinigame != null)
@@ -61,8 +66,14 @@ public class GameManager : MonoBehaviour
     {
         if (_currentIndex >= minigameSequence.Minigames.Count)
         {
-            Victory();
-            return;
+            _currentIndex = 0;
+
+            if (_niveauDifficulte < MaxNiveauDifficulte)
+            {
+                _niveauDifficulte++;
+                OnDifficulteChanged?.Invoke(_niveauDifficulte);
+                Debug.Log($"[GameManager] DifficultÃ© augmentÃ©e â†’ niveau {_niveauDifficulte}");
+            }
         }
 
         MinigameDefinition definition = minigameSequence.Minigames[_currentIndex];
@@ -78,7 +89,7 @@ public class GameManager : MonoBehaviour
 
         _currentMinigame.OnWin += HandleWin;
         _currentMinigame.OnLose += HandleLose;
-        _currentMinigame.OnMinigameStart(definition);
+        _currentMinigame.OnMinigameStart(definition, _niveauDifficulte);
     }
 
     private void HandleWin()
@@ -104,15 +115,19 @@ public class GameManager : MonoBehaviour
         StartCoroutine(RoutineEntreMinijeux());
     }
 
-    private void Victory()
-    {
-        Debug.Log("[GameManager] Victoire !");
-        // TODO : charger l'écran de victoire
-    }
-
     private void GameOver()
     {
-        Debug.Log("[GameManager] Game Over !");
-        // TODO : charger l'écran de game over
+        // DÃ©truire le mini-jeu en cours
+        if (_currentMinigame != null)
+        {
+            Destroy(_currentMinigame.gameObject);
+            _currentMinigame = null;
+        }
+
+        // Sauvegarder le score
+        ScoreManager.SauvegarderScore(_score);
+
+        // Afficher l'Ã©cran de game over
+        gameOverController.Afficher(_score);
     }
 }

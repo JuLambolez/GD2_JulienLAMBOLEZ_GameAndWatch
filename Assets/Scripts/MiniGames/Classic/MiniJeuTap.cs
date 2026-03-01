@@ -20,7 +20,11 @@ public class MinijeuTap : MinigameBase
     {
         _tempsDepart = Time.time;
         _positionNormalisee = 0f;
+
+        // Chaque niveau ajoute 0.4 à la vitesse de base
+        vitesse += NiveauDifficulte * 0.4f;
     }
+
 
     protected override void SurMiseAJourJeu()
     {

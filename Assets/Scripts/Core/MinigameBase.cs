@@ -4,7 +4,6 @@ using UnityEngine;
 
 public abstract class MinigameBase : MonoBehaviour
 {
-    // Événements écoutés par le GameManager
     public event Action OnWin;
     public event Action OnLose;
 
@@ -16,9 +15,13 @@ public abstract class MinigameBase : MonoBehaviour
     private float _tempsRestant;
     private bool _enCours;
 
+    // Accessible par les classes enfants pour adapter la difficulté
+    protected int NiveauDifficulte { get; private set; }
+
     /// Appelé par le GameManager pour démarrer le mini-jeu.
-    public void OnMinigameStart(MinigameDefinition definition)
+    public void OnMinigameStart(MinigameDefinition definition, int niveauDifficulte)
     {
+        NiveauDifficulte = niveauDifficulte;
         _dureeTotale = definition.TimerDuration;
         _tempsRestant = _dureeTotale;
         _enCours = false;
@@ -28,13 +31,11 @@ public abstract class MinigameBase : MonoBehaviour
 
     private IEnumerator RoutineIntro()
     {
-        // Afficher le panneau d'instruction si présent
         if (panneauInstruction != null)
             panneauInstruction.SetActive(true);
 
         yield return new WaitForSeconds(dureeAffichageInstruction);
 
-        // Cacher l'instruction et démarrer le jeu
         if (panneauInstruction != null)
             panneauInstruction.SetActive(false);
 
@@ -47,7 +48,6 @@ public abstract class MinigameBase : MonoBehaviour
         if (!_enCours) return;
 
         _tempsRestant -= Time.deltaTime;
-
         SurMiseAJourTimer(_tempsRestant, _dureeTotale);
 
         if (_tempsRestant <= 0f)
@@ -59,19 +59,10 @@ public abstract class MinigameBase : MonoBehaviour
         SurMiseAJourJeu();
     }
 
-    /// Logique d'initialisation propre à chaque mini-jeu.
-    /// Appelé après la disparition du panneau d'instruction.
     protected abstract void Demarrer();
-
-    /// Appelé à chaque frame tant que le mini-jeu est en cours.
-    /// À surcharger dans les classes enfants à la place de Update().
     protected virtual void SurMiseAJourJeu() { }
-
-    /// Appelé à chaque frame avec le temps restant et la durée totale.
-    /// Optionnel : permet d'afficher une barre de progression.
     protected virtual void SurMiseAJourTimer(float tempsRestant, float dureeTotale) { }
 
-    /// À appeler depuis le mini-jeu enfant quand le joueur réussit.
     protected void Reussir()
     {
         if (!_enCours) return;
@@ -79,8 +70,6 @@ public abstract class MinigameBase : MonoBehaviour
         OnWin?.Invoke();
     }
 
-    /// À appeler depuis le mini-jeu enfant quand le joueur échoue,
-    /// ou déclenché automatiquement à l'expiration du timer.
     protected void Echouer()
     {
         if (!_enCours) return;

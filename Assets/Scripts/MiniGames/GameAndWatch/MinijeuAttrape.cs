@@ -29,6 +29,9 @@ public class MinijeuAttrape : MinigameBase
         Canvas.ForceUpdateCanvases();
         _resolved = false;
 
+        // Chaque niveau réduit l'intervalle de chute de 0.15 seconde
+        intervalleChute = Mathf.Max(0.3f, intervalleChute - NiveauDifficulte * 0.15f);
+
         float demiLargeur = zoneDeJeu.rect.width * 0.5f;
         float demiHauteur = zoneDeJeu.rect.height * 0.5f;
 
