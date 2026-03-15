@@ -15,6 +15,10 @@ public abstract class MinigameBase : MonoBehaviour
     [Header("Timer visuel")]
     [SerializeField] private TextMeshProUGUI timerTexte;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip sonVictoire;
+    [SerializeField] private AudioClip sonDefaite;
+
     private float _dureeTotale;
     private float _tempsRestant;
     private bool _enCours;
@@ -70,11 +74,19 @@ public abstract class MinigameBase : MonoBehaviour
     protected abstract void Demarrer();
     protected virtual void SurMiseAJourJeu() { }
 
+    /// Appelé quand le timer arrive à zéro.
+    /// Par défaut déclenche Echouer(). À surcharger si survivre = gagner.
+    protected virtual void SurExpiration()
+    {
+        Echouer();
+    }
+
     /// À appeler depuis le mini-jeu enfant quand le joueur réussit.
     protected void Reussir()
     {
         if (!_enCours) return;
         _enCours = false;
+        AudioManager.Instance.JouerSFX(sonVictoire);
         OnWin?.Invoke();
     }
 
@@ -84,14 +96,7 @@ public abstract class MinigameBase : MonoBehaviour
     {
         if (!_enCours) return;
         _enCours = false;
+        AudioManager.Instance.JouerSFX(sonDefaite);
         OnLose?.Invoke();
     }
-
-    /// Appelé quand le timer arrive à zéro.
-    /// Par défaut déclenche Echouer(). À surcharger si survivre = gagner.
-    protected virtual void SurExpiration()
-    {
-        Echouer();
-    }
-
 }

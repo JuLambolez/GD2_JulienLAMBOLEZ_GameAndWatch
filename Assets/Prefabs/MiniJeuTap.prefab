@@ -187,7 +187,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -200}
+  m_AnchoredPosition: {x: 0, y: -190}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4411199567070798085
@@ -338,6 +338,8 @@ MonoBehaviour:
   panneauInstruction: {fileID: 8928573451428570893}
   dureeAffichageInstruction: 1.5
   timerTexte: {fileID: 5439825057230608714}
+  sonVictoire: {fileID: 8300000, guid: aef7874816d46604a99ecb74fa59dd66, type: 3}
+  sonDefaite: {fileID: 8300000, guid: 6ee3ea7c6de526743b6d48ed6c7cf70f, type: 3}
   curseur: {fileID: 1921126276178350962}
   piste: {fileID: 4948800803408977779}
   vitesse: 1.2
