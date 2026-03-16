@@ -10,7 +10,7 @@ public class MainMenuController : MonoBehaviour
     [Header("Audio")]
     [SerializeField] private AudioClip musiqueMenu;
 
-    private const string MainGameSceneName = "MainGame";
+    private const string MainGameSceneName = "MapSelection";
 
     private void Start()
     {
