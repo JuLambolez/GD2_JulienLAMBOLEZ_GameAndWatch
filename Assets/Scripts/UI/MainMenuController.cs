@@ -22,13 +22,4 @@ public class MainMenuController : MonoBehaviour
         AudioManager.Instance.ArreterMusique();
         SceneManager.LoadScene(MainGameSceneName);
     }
-
-    public void QuiGame()
-    {
-#if UNITY_EDITOR
-        EditorApplication.ExitPlaymode();
-#else
-        Application.Quit();
-#endif
-    }
 }
